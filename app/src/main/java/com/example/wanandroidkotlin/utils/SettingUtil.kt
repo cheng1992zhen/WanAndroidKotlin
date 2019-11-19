@@ -6,7 +6,7 @@ import com.example.wanandroidkotlin.R
 import com.example.wanandroidkotlin.app.App
 
 /**
- * Created by chenxz on 2018/6/18.
+ *
  */
 object SettingUtil {
     private val setting = PreferenceManager.getDefaultSharedPreferences(App.context)
