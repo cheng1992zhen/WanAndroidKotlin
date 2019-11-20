@@ -1,25 +1,40 @@
 package com.example.wanandroidkotlin.ui.fragment
 
 
-import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-
+import com.cxz.wanandroid.mvp.model.bean.ArticleResponseBody
+import com.cxz.wanandroid.mvp.model.bean.Banner
 import com.example.wanandroidkotlin.R
+import com.example.wanandroidkotlin.base.BaseMvpActivity
+import com.example.wanandroidkotlin.base.BaseMvpFragment
+import com.example.wanandroidkotlin.mvp.contract.HomeContract
+import com.example.wanandroidkotlin.mvp.presenter.HomePresenter
 
 /**
- * A simple [Fragment] subclass.
+ *
  */
-class HomeFragment : Fragment() {
+class HomeFragment : BaseMvpFragment<HomeContract.View, HomeContract.Presenter>(),
+    HomeContract.View {
+    override fun lazyLoad() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+    }
+
+    override fun createPresenter(): HomeContract.Presenter = HomePresenter()
+
+    override fun attachLayoutRes(): Int = R.layout.fragment_home
+
+    override fun scrollToTop() {
+    }
+
+    override fun setBanner(banners: List<Banner>) {
+    }
+
+    override fun setArticles(articles: ArticleResponseBody) {
+    }
+
+    override fun showCollectSuccess(success: Boolean) {
+    }
+
+    override fun showCancelCollectSuccess(success: Boolean) {
     }
 
     companion object {

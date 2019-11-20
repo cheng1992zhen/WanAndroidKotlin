@@ -1,8 +1,13 @@
 package com.example.wanandroidkotlin.ui.activity
 
+import android.content.DialogInterface
 import android.content.Intent
+import android.os.Bundle
+import android.view.KeyEvent
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.FragmentTransaction
 import com.cxz.wanandroid.constant.Constant
@@ -14,6 +19,9 @@ import com.example.wanandroidkotlin.mvp.contract.MainContract
 import com.example.wanandroidkotlin.mvp.presenter.MainPresenter
 import com.example.wanandroidkotlin.ui.fragment.*
 import com.example.wanandroidkotlin.utils.Preference
+import com.example.wanandroidkotlin.utils.SettingUtil
+import com.example.wanandroidkotlin.utils.showToast
+import com.example.wanandroidkotlin.widget.DialogUtil
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomnavigation.LabelVisibilityMode
 import com.google.android.material.bottomnavigation.LabelVisibilityMode.LABEL_VISIBILITY_LABELED
@@ -26,7 +34,7 @@ import kotlinx.android.synthetic.main.toolbar.*
 
 class MainActivity : BaseMvpActivity<MainContract.View, MainContract.Presenter>(),
     MainContract.View {
-
+    private val BOTTOM_INDEX: String = "bottom_index"
     private val FRAGMENT_HOME = 0x01
     private val FRAGMENT_KNOWLEDGE = 0x02
     private val FRAGMENT_NAVIGATION = 0x03
@@ -55,6 +63,13 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainContract.Presenter>(
 
     override fun showUserInfo(bean: UserInfoBody) {
 
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) {
+            mIndex = savedInstanceState.getInt(BOTTOM_INDEX)
+        }
+        super.onCreate(savedInstanceState)
     }
 
     override fun initView() {
@@ -118,11 +133,62 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainContract.Presenter>(
 
     private val onDrawerNavigationItemSelectedListener =
         NavigationView.OnNavigationItemSelectedListener { item ->
-            return@OnNavigationItemSelectedListener when (item.itemId) {
+            when (item.itemId) {
 
-                else -> return@OnNavigationItemSelectedListener false
+                R.id.nav_score -> {
+                    if (isLogin) {
+                        Intent(this@MainActivity, ScoreActivity::class.java).run {
+                            startActivity(this)
+                        }
+                    } else {
+                        showToast(resources.getString(R.string.login_tint))
+                        goLogin()
+                    }
+                }
+                R.id.nav_collect -> {
+                    if (isLogin) {
+                        goCommonActivity(Constant.Type.COLLECT_TYPE_KEY)
+                    } else {
+                        showToast(resources.getString(R.string.login_tint))
+                        goLogin()
+                    }
+                }
+                R.id.nav_setting -> {
+                    Intent(this@MainActivity, SettingActivity::class.java).run {
+                        // putExtra(Constant.TYPE_KEY, Constant.Type.SETTING_TYPE_KEY)
+                        startActivity(this)
+                    }
+                }
+                R.id.nav_about_us -> {
+                    goCommonActivity(Constant.Type.ABOUT_US_TYPE_KEY)
+                }
+                R.id.nav_logout -> {
+                    logout()
+                }
+                R.id.nav_night_mode -> {
+                    if (SettingUtil.getIsNightMode()) {
+                        SettingUtil.setIsNightMode(false)
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    } else {
+                        SettingUtil.setIsNightMode(true)
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    }
+                    window.setWindowAnimations(R.style.WindowAnimationFadeInOut)
+                    recreate()
+                }
+                R.id.nav_todo -> {
+                    if (isLogin) {
+                        Intent(this@MainActivity, TodoActivity::class.java).run {
+                            startActivity(this)
+                        }
+                    } else {
+                        showToast(resources.getString(R.string.login_tint))
+                        goLogin()
+                    }
+                }
+
             }
-
+            true
         }
 
     /**
@@ -225,8 +291,106 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainContract.Presenter>(
         mWeChatFragment?.let { transaction.hide(it) }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState?.putInt(BOTTOM_INDEX, mIndex)
+    }
+
+    /**
+     * 去登陆页面
+     */
+    private fun goLogin() {
+        Intent(this, LoginActivity::class.java).run { startActivity(this) }
+    }
+
+
+    private var mExitTime: Long = 0
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (System.currentTimeMillis().minus(mExitTime) <= 2000) {
+                finish()
+            } else {
+                mExitTime = System.currentTimeMillis()
+                showToast(getString(R.string.exit_tip))
+            }
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    /**
+     * 退出登录 Dialog
+     */
+    private val mDialog by lazy {
+        DialogUtil.getWaitDialog(this@MainActivity, resources.getString(R.string.logout_ing))
+    }
+
+    /**
+     * Logout
+     */
+    private fun logout() {
+        DialogUtil.getConfirmDialog(this, resources.getString(R.string.confirm_logout),
+            DialogInterface.OnClickListener { _, _ ->
+                mDialog.show()
+                mPresenter?.logout()
+            }).show()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.action_search -> {
+                Intent(this, SearchActivity::class.java).run {
+                    startActivity(this)
+                }
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+
+    }
+    private fun goCommonActivity(type: String) {
+        Intent(this@MainActivity, CommonActivity::class.java).run {
+            putExtra(Constant.TYPE_KEY, type)
+            startActivity(this)
+        }
+    }
+
+     override fun recreate(){
+        try {
+            val fragmentTransaction = supportFragmentManager.beginTransaction()
+            if (mHomeFragment != null) {
+                fragmentTransaction.remove(mHomeFragment!!)
+            }
+            if (mKnowledgeTreeFragment != null) {
+                fragmentTransaction.remove(mKnowledgeTreeFragment!!)
+            }
+            if (mNavigationFragment != null) {
+                fragmentTransaction.remove(mNavigationFragment!!)
+            }
+            if (mProjectFragment != null) {
+                fragmentTransaction.remove(mProjectFragment!!)
+            }
+            if (mWeChatFragment != null) {
+                fragmentTransaction.remove(mWeChatFragment!!)
+            }
+            fragmentTransaction.commitAllowingStateLoss()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        super.recreate()
+    }
+
     override fun initColor() {
         super.initColor()
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mHomeFragment = null
+        mNavigationFragment = null
+        mKnowledgeTreeFragment = null
+        mProjectFragment = null
+        mWeChatFragment = null
     }
 }

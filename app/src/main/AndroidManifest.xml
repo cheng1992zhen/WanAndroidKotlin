@@ -10,8 +10,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.activity.LoginActivity"></activity>
-        <activity android:name=".ui.activity.ConstraintLayoutActivity"></activity>
+        <activity android:name=".ui.activity.SearchActivity"></activity>
+        <activity android:name=".ui.activity.CommonActivity" />
+        <activity android:name=".ui.activity.SettingActivity" />
+        <activity android:name=".ui.activity.TodoActivity" />
+        <activity android:name=".ui.activity.ScoreActivity" />
+        <activity android:name=".ui.activity.LoginActivity" />
+        <activity android:name=".ui.activity.ConstraintLayoutActivity" />
         <activity
             android:name=".ui.activity.SplashActivity"
             android:theme="@style/SplashTheme">
