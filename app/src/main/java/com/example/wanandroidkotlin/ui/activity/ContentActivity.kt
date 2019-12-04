@@ -4,10 +4,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.wanandroidkotlin.R
 
-class ConstraintLayoutActivity : AppCompatActivity() {
+class ContentActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_constraint_layout)
+        setContentView(R.layout.activity_content)
     }
 }

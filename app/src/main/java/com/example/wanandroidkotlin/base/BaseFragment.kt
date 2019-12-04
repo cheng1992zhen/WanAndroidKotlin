@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import com.cxz.wanandroid.constant.Constant
-import com.example.wanandroidkotlin.app.App
 import com.example.wanandroidkotlin.event.NetworkChangeEvent
 import com.example.wanandroidkotlin.utils.Preference
 import com.example.wanandroidkotlin.widget.MultipleStatusView

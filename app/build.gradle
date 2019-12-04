@@ -59,4 +59,5 @@ dependencies {
     implementation(rootProject.ext.otherDeps["glideOkhttp"]) {
         exclude group: 'glide-parent'
     }
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.50"
 }

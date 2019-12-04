@@ -4,7 +4,7 @@
     <string name="error_view_hint">加载失败</string>
     <string name="no_network_view_hint">网络异常</string>
 
-    <string name="app_name">玩Android_Kotlin</string>
+    <string name="app_name">玩Android</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="home">首页</string>

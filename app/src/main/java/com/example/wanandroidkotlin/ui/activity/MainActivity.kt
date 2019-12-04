@@ -227,7 +227,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainContract.Presenter>(
         var transaction = supportFragmentManager.beginTransaction()
         hideFragments(transaction)
         mIndex = index
-        when (mIndex) {
+        when (index) {
             FRAGMENT_HOME -> {
                 if (mHomeFragment == null) {
                     toolbar.title = getString(R.string.app_name)
@@ -274,6 +274,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainContract.Presenter>(
                 }
             }
         }
+        transaction.commit()
     }
 
     /**
