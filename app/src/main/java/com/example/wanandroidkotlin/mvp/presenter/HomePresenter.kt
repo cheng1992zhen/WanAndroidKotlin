@@ -37,23 +37,22 @@ class HomePresenter : BasePresenter<HomeContract.Model, HomeContract.View>(),
 
                 })
         }
-
-
-
         observable?.ss(mModel, mView, false) {
             mView?.setArticles(it.data)
         }
     }
 
     override fun requestArticles(num: Int) {
-
+        mModel?.requestArticles(num)?.ss(mModel, mView, false) {
+            mView?.setArticles(it.data)
+        }
     }
 
     override fun addCollectArticle(id: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        mModel?.addCollectArticle(id)?.ss(mModel, mView, false) {}
     }
 
     override fun cancelCollectArticle(id: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        mModel?.cancelCollectArticle(id)?.ss(mModel, mView, false) {}
     }
 }

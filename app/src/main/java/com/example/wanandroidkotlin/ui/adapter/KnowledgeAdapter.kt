@@ -2,22 +2,20 @@ package com.example.wanandroidkotlin.ui.adapter
 
 import android.content.Context
 import android.text.Html
+import android.text.TextUtils
 import android.view.View
 import android.widget.ImageView
-import android.widget.TextView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.cxz.wanandroid.mvp.model.bean.Article
 import com.example.wanandroidkotlin.R
 import com.example.wanandroidkotlin.utils.ImageLoader
 
-class HomeAdapter(private val context: Context?, datas: MutableList<Article>) :
-    BaseQuickAdapter<Article, BaseViewHolder>(
-        R.layout.item_home_list, datas
-    ) {
+class KnowledgeAdapter(private val context: Context?, datas: MutableList<Article>) :
+    BaseQuickAdapter<Article, BaseViewHolder>(R.layout.item_knowledge_list, datas) {
     override fun convert(helper: BaseViewHolder?, item: Article?) {
-        helper ?: return
         item ?: return
+        helper ?: return
         val authorStr = if (item.author.isNotEmpty()) item.author else item.shareUser
         helper.setText(R.id.tv_article_title, Html.fromHtml(item.title))
             .setText(R.id.tv_article_author, authorStr)
@@ -35,7 +33,8 @@ class HomeAdapter(private val context: Context?, datas: MutableList<Article>) :
             else -> ""
         }
         helper.setText(R.id.tv_article_chapterName, chapterName)
-        if (item.envelopePic.isNotEmpty()) {
+
+        if (!TextUtils.isEmpty(item.envelopePic)) {
             helper.getView<ImageView>(R.id.iv_article_thumbnail)
                 .visibility = View.VISIBLE
             context?.let {
@@ -44,26 +43,6 @@ class HomeAdapter(private val context: Context?, datas: MutableList<Article>) :
         } else {
             helper.getView<ImageView>(R.id.iv_article_thumbnail)
                 .visibility = View.GONE
-        }
-        val tv_fresh = helper.getView<TextView>(R.id.tv_article_fresh)
-        if (item.fresh) {
-            tv_fresh.visibility = View.VISIBLE
-        } else {
-            tv_fresh.visibility = View.GONE
-        }
-
-        val tv_top = helper.getView<TextView>(R.id.tv_article_top)
-        if (item.top == "1") {
-            tv_top.visibility = View.VISIBLE
-        } else {
-            tv_top.visibility = View.GONE
-        }
-        val tv_article_tag = helper.getView<TextView>(R.id.tv_article_tag)
-        if (item.tags.size > 0) {
-            tv_article_tag.visibility = View.VISIBLE
-            tv_article_tag.text = item.tags[0].name
-        } else {
-            tv_article_tag.visibility = View.GONE
         }
     }
 }

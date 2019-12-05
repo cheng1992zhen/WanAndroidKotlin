@@ -8,17 +8,23 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import cn.bingoogolapple.bgabanner.BGABanner
+import com.chad.library.adapter.base.BaseQuickAdapter
 import com.cxz.wanandroid.constant.Constant
 import com.cxz.wanandroid.mvp.model.bean.Article
 import com.cxz.wanandroid.mvp.model.bean.ArticleResponseBody
 import com.cxz.wanandroid.mvp.model.bean.Banner
 import com.example.wanandroidkotlin.R
+import com.example.wanandroidkotlin.app.App
 import com.example.wanandroidkotlin.base.BaseMvpFragment
 import com.example.wanandroidkotlin.mvp.contract.HomeContract
 import com.example.wanandroidkotlin.mvp.presenter.HomePresenter
 import com.example.wanandroidkotlin.ui.activity.ContentActivity
+import com.example.wanandroidkotlin.ui.activity.LoginActivity
 import com.example.wanandroidkotlin.ui.adapter.HomeAdapter
 import com.example.wanandroidkotlin.utils.ImageLoader
+import com.example.wanandroidkotlin.utils.NetWorkUtil
+import com.example.wanandroidkotlin.utils.showSnackMsg
+import com.example.wanandroidkotlin.utils.showToast
 import com.example.wanandroidkotlin.widget.SpaceItemDecoration
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -77,9 +83,65 @@ class HomeFragment : BaseMvpFragment<HomeContract.View, HomeContract.Presenter>(
             setDelegate(bannerDelegate)
         }
         homeAdapter.run {
+            bindToRecyclerView(recyclerView)
+            setOnLoadMoreListener(onRequestLoadMoreListener, recyclerView)
+            onItemClickListener = this@HomeFragment.onItemClickListener
+            onItemChildClickListener = this@HomeFragment.onItemChildClickListener
             addHeaderView(bannerView)
         }
 
+    }
+
+    private val onItemChildClickListener =
+        BaseQuickAdapter.OnItemChildClickListener { adapter, view, position ->
+            if (datas.size != 0) {
+                val data = datas[position]
+                when (view.id) {
+                    R.id.iv_like -> {
+                        if (isLogin) {
+                            if (!NetWorkUtil.isNetworkConnected(App.context)) {
+                                showSnackMsg(resources.getString(R.string.no_network))
+                                return@OnItemChildClickListener
+                            }
+                            val collect = data.collect
+                            data.collect = !collect
+                            homeAdapter.setData(position, data)
+                            if (collect) {
+                                mPresenter?.cancelCollectArticle(data.id)
+                            } else {
+                                mPresenter?.addCollectArticle(data.id)
+                            }
+                        } else {
+                            Intent(activity, LoginActivity::class.java).run {
+                                startActivity(this)
+                            }
+                            showToast(resources.getString(R.string.login_tint))
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+    private val onItemClickListener =
+        BaseQuickAdapter.OnItemClickListener { _, _, position ->
+            if (datas.size != 0) {
+                val data = datas[position]
+                Intent(activity, ContentActivity::class.java).run {
+                    putExtra(Constant.CONTENT_URL_KEY, data.link)
+                    putExtra(Constant.CONTENT_TITLE_KEY, data.title)
+                    putExtra(Constant.CONTENT_ID_KEY, data.id)
+                    startActivity(this)
+                }
+            }
+
+        }
+    private val onRequestLoadMoreListener = BaseQuickAdapter.RequestLoadMoreListener {
+        isRefresh = false
+        swipeRefreshLayout.isRefreshing = false
+        val page = homeAdapter.data.size / 20
+        mPresenter?.requestArticles(page)
     }
 
     private val bannerDelegate =
@@ -100,11 +162,27 @@ class HomeFragment : BaseMvpFragment<HomeContract.View, HomeContract.Presenter>(
         mPresenter?.requestHomeData()
     }
 
+    override fun hideLoading() {
+        super.hideLoading()
+        swipeRefreshLayout.isRefreshing = false
+        if (isRefresh)
+            homeAdapter.run {
+                setEnableLoadMore(true)
+            }
+    }
+
     override fun createPresenter(): HomeContract.Presenter = HomePresenter()
 
     override fun attachLayoutRes(): Int = R.layout.fragment_home
 
     override fun scrollToTop() {
+        recyclerView.run {
+            if (linearLayoutManager.findFirstVisibleItemPosition() > 20) {
+                scrollToPosition(0)
+            } else {
+                smoothScrollToPosition(0)
+            }
+        }
     }
 
     override fun setBanner(banners: List<Banner>) {
@@ -149,16 +227,26 @@ class HomeFragment : BaseMvpFragment<HomeContract.View, HomeContract.Presenter>(
     }
 
     override fun showCollectSuccess(success: Boolean) {
-
+        if (success) {
+            showToast(resources.getString(R.string.collect_success))
+        }
     }
 
     override fun showCancelCollectSuccess(success: Boolean) {
-
+        if (success) {
+            showToast(resources.getString(R.string.cancel_collect_success))
+        }
     }
 
     override fun showError(errorMsg: String) {
         super.showError(errorMsg)
         mLayoutStatusView?.showError()
+        homeAdapter.run {
+            if (isRefresh)
+                setEnableLoadMore(true)
+            else
+                loadMoreFail()
+        }
     }
 
 
@@ -169,7 +257,9 @@ class HomeFragment : BaseMvpFragment<HomeContract.View, HomeContract.Presenter>(
     }
 
     private val onRefreshListener = SwipeRefreshLayout.OnRefreshListener {
-
+        isRefresh = true
+        homeAdapter.setEnableLoadMore(false)
+        mPresenter?.requestHomeData()
     }
 
 

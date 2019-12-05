@@ -8,6 +8,7 @@ import com.cxz.wanandroid.constant.Constant
 import com.example.wanandroidkotlin.BuildConfig
 import com.example.wanandroidkotlin.R
 import com.example.wanandroidkotlin.utils.CommonUtil
+import com.example.wanandroidkotlin.utils.DisplayManager
 import com.example.wanandroidkotlin.utils.showToast
 import com.tencent.bugly.Bugly
 import com.tencent.bugly.beta.Beta
@@ -33,6 +34,7 @@ class App : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        DisplayManager.init(this)
         context = applicationContext
     }
 
