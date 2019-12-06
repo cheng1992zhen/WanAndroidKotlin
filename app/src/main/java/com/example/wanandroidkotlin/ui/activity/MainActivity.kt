@@ -281,7 +281,23 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainContract.Presenter>(
      * FAB 监听
      */
     private val onFABClickListener = View.OnClickListener {
-
+        when (mIndex) {
+            FRAGMENT_HOME -> {
+                mHomeFragment?.scrollToTop()
+            }
+            FRAGMENT_KNOWLEDGE -> {
+                mKnowledgeTreeFragment?.scrollToTop()
+            }
+            FRAGMENT_NAVIGATION -> {
+                mNavigationFragment?.scrollToTop()
+            }
+            FRAGMENT_PROJECT -> {
+                mProjectFragment?.scrollToTop()
+            }
+            FRAGMENT_WECHAT -> {
+                mWeChatFragment?.scrollToTop()
+            }
+        }
     }
 
     private fun hideFragments(transaction: FragmentTransaction) {

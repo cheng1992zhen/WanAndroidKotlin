@@ -86,6 +86,7 @@ class ProjectFragment : BaseMvpFragment<ProjectContract.View, ProjectContract.Pr
     }
 
     override fun lazyLoad() {
+        mLayoutStatusView?.showLoading()
         mPresenter?.requestProjectTree()
     }
 
@@ -101,7 +102,7 @@ class ProjectFragment : BaseMvpFragment<ProjectContract.View, ProjectContract.Pr
         }
         val fragment: ProjectListFragment =
             viewPagerAdapter.getItem(viewPager.currentItem) as ProjectListFragment
-        //fragment.scrollToTop()
+        fragment.scrollToTop()
     }
 
     override fun setProjectTree(list: List<ProjectTreeBean>) {
